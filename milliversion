@@ -1,0 +1,60 @@
+
+#include <avr/io.h>
+
+void mydelay(long int k)
+{
+	long int i;
+	for (i = 0; i < k; i++)
+	{
+		asm("nop"); //no operation for one cycle
+	}
+}
+
+void ADC_setup()
+{
+	ADMUX = (1 << REFS0);
+	//ADCSRB untouched as it is default in free-running-mode after reset
+	// power on ADC, activate free running mode, start converting, 128 prescaler (->125kHz)
+	ADCSRA |= (1<<ADEN)|(1<<ADATE)|(1<<ADSC)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+}
+
+
+int main()
+{
+	DDRB = 0b11111000; //pin 8 - 10 inputs, 11-13 outputs
+	//set up ADC
+	ADC_setup();
+
+	int adc_value;
+	int i, period, cycles;
+	//for(int i=0; i<8; i++)
+	//{
+	while(1)
+	{
+		adc_value = ADCW;
+		period = 500000/ (adc_value+1);
+		cycles = (adc_value * 100)/1000;
+
+		if(PINB & (1<<2)) //if on/off switch is ON
+		{
+			PORTB |= (1<<5);
+			for(i=0; i<= cycles; i++)
+			{
+				PORTB |= (1<<3);
+				mydelay(period); //crest widens
+				PORTB &= ~(1<<3);
+				mydelay(period);   //trough shrinks
+			}
+		}
+		else
+			PORTB &= ~(1<<5);
+		mydelay(100000);
+
+	}
+
+	//}
+
+
+
+	return 0;
+}
