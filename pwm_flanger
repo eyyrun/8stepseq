@@ -1,0 +1,40 @@
+
+#include <avr/io.h>
+
+void mydelay(long int k)
+{
+	long int i;
+	for (i = 0; i < k; i++)
+	{
+		asm("nop"); //no operation for one cycle
+	}
+}
+
+int main()
+{
+	DDRB = 0b11111000; //pin 8 - 10 inputs, 11-13 outputs
+	unsigned long int x,i,c;
+	x=2500;
+	c = 0;
+		while(1)
+		{
+			for(i=x; i>0+10; i--)
+			{
+				PORTB |= (1<<3);
+				mydelay(x-i); //crest widens
+				PORTB &= ~(1<<3);
+				mydelay(i);   //trough shrinks
+				i = i - c;
+			}                                             //skilja betur hvad er i gangi her! (tidni a bylgju (x) vs tidni a flanger)
+			for(i=0; i<x-10; i++)
+			{
+				PORTB |= (1<<3);
+				mydelay(x-i); //crest shrinks
+				PORTB &= ~(1<<3);
+				mydelay(i); 	  //trough widens
+				i = i + c;
+			}
+		}
+
+	return 0;
+}
