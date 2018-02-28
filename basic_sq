@@ -1,0 +1,28 @@
+	
+#include <avr/io.h>
+
+void mydelay(long int k)
+{
+	long int i;
+	for (i = 0; i < k; i++)
+	{
+		asm("nop"); //no operation for one cycle
+	}
+}
+
+int main()
+{
+	DDRB = 0b11111000; //pin 8 - 10 inputs, 11-13 outputs
+
+  
+  while(1)
+	{
+		if(PINB & (1<<1))
+		{
+			PORTB |= (1<<3);
+			mydelay(1000);
+			PORTB &= ~(1<<3);
+			mydelay(1000);
+		}
+
+	}
