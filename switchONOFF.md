@@ -19,10 +19,10 @@ int main()
 	{
 		if(PINB & (1<<2))
 		{
-			PINB |= (1<<5);
+			PORTB |= (1<<5);
 		}
 		else
-		PINB &= ~(1<<5);
+		PORTB &= ~(1<<5);
 	}
 
 
